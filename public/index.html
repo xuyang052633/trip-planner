@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✈️ 请假旅游规划助手</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 16px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 8px; font-size: 28px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 24px; }
+        h2 { color: #444; font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 6px; color: #555; font-weight: 500; }
+        input, select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; background: #fff; color: #000; }
+        input:focus, select:focus { outline: none; border-color: #667eea; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-small { padding: 8px 16px; font-size: 14px; }
+        .btn-outline { background: white; border: 2px solid #667eea; color: #667eea; }
+        
+        .result { display: none; animation: fadeIn 0.5s; }
+        .result.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .salary-info { background: #f8f9ff; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .salary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .salary-item { background: white; padding: 12px; border-radius: 8px; text-align: center; }
+        .salary-item .value { font-size: 24px; font-weight: bold; color: #667eea; }
+        .salary-item .label { font-size: 12px; color: #666; margin-top: 4px; }
+        
+        .dest-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+        .dest-card { background: #fff; border: 2px solid #eee; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+        .dest-card:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .dest-card.selected { border-color: #667eea; background: #f0f4ff; }
+        .dest-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .dest-name { font-weight: bold; font-size: 16px; }
+        .dest-price { color: #e74c3c; font-weight: bold; }
+        .dest-info { color: #666; font-size: 13px; }
+        
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .flight-list, .hotel-list { margin-top: 16px; }
+        .flight-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .flight-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .flight-info { flex: 1; }
+        .flight-airline { font-weight: bold; color: #333; }
+        .flight-time { color: #666; font-size: 14px; margin: 4px 0; }
+        .flight-duration { color: #999; font-size: 12px; }
+        .flight-price { text-align: right; }
+        .flight-price .amount { font-size: 24px; font-weight: bold; color: #e74c3c; }
+        .flight-price .currency { font-size: 12px; color: #999; }
+        
+        .hotel-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-bottom: 12px; display: flex; gap: 16px; }
+        .hotel-image { width: 120px; height: 90px; background: #f0f0f0; border-radius: 8px; object-fit: cover; }
+        .hotel-info { flex: 1; }
+        .hotel-name { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
+        .hotel-rating { color: #f39c12; font-size: 14px; }
+        .hotel-amenities { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .amenity-tag { padding: 4px 8px; background: #f0f0f0; border-radius: 4px; font-size: 12px; color: #666; }
+        .hotel-price { text-align: right; }
+        
+        .leave-info { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px; margin-top: 16px; }
+        .leave-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+        .leave-option { padding: 12px; background: white; border: 2px solid #ddd; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .leave-option:hover { border-color: #667eea; }
+        .leave-option.selected { border-color: #667eea; background: #f0f4ff; }
+        .leave-option .days { font-size: 20px; font-weight: bold; color: #333; }
+        .leave-option .cost { font-size: 14px; color: #e74c3c; margin-top: 4px; }
+        
+        .plan-summary { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 20px; border-radius: 12px; margin-top: 16px; }
+        .plan-summary h3 { margin-bottom: 16px; }
+        .plan-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .plan-row:last-child { border-bottom: none; margin-bottom: 0; }
+        
+        .tab-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tab-btn { flex: 1; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; }
+        .tab-btn.active { background: #667eea; color: white; }
+        
+        .error-msg { background: #fee; border: 1px solid #fcc; color: #c00; padding: 12px; border-radius: 8px; margin-top: 12px; }
+        
+        .mock-badge { display: inline-block; padding: 4px 8px; background: #ffa500; color: white; border-radius: 4px; font-size: 12px; margin-left: 8px; }
+        
+        @media (max-width: 600px) {
+            .dest-grid { grid-template-columns: 1fr; }
+            .salary-grid { grid-template-columns: repeat(2, 1fr); }
+            .leave-options { grid-template-columns: repeat(2, 1fr); }
+            .row-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>✈️ 请假旅游规划助手</h1>
+            <p class="subtitle">实时搜索机票酒店 · 智能规划最优行程</p>
+            
+            <h2>💰 基本信息</h2>
+            <div class="row">
+                <div class="form-group">
+                    <label>日薪（元）</label>
+                    <input type="number" id="dailySalary" value="1600">
+                </div>
+                <div class="form-group">
+                    <label>工作时长（小时）</label>
+                    <input type="number" id="workHours" value="8">
+                </div>
+            </div>
+            
+            <h2>🛫 出行信息</h2>
+            <div class="row-3">
+                <div class="form-group">
+                    <label>出发城市</label>
+                    <select id="fromCity">
+                        <option value="深圳">深圳</option>
+                        <option value="香港" selected>香港</option>
+                        <option value="澳门">澳门</option>
+                        <option value="广州">广州</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>出发日期</label>
+                    <input type="date" id="departDate" value="2026-04-04">
+                </div>
+                <div class="form-group">
+                    <label>返程日期</label>
+                    <input type="date" id="returnDate" value="2026-04-06">
+                </div>
+            </div>
+            
+            <h2>🛬 目的地</h2>
+            <div class="dest-grid" id="destGrid">
+                <!-- 目的地由JS加载 -->
+            </div>
+            
+            <button class="btn" id="searchBtn" onclick="searchAll()" style="margin-top: 20px;">🔍 搜索机票和酒店</button>
+        </div>
+        
+        <div class="card result" id="salaryCard">
+            <h2>💰 请假成本计算</h2>
+            <div class="salary-info">
+                <div class="salary-grid">
+                    <div class="salary-item"><div class="value" id="hourlyRate">200</div><div class="label">元/小时</div></div>
+                    <div class="salary-item"><div class="value" id="amCost">800</div><div class="label">上午(4h)</div></div>
+                    <div class="salary-item"><div class="value" id="pmCost">800</div><div class="label">下午(4h)</div></div>
+                    <div class="salary-item"><div class="value" id="fullDayCost">1600</div><div class="label">全天</div></div>
+                </div>
+            </div>
+            
+            <h2>📋 请假方案</h2>
+            <div class="leave-info">
+                <div class="leave-options" id="leaveOptions">
+                    <div class="leave-option" onclick="selectLeave(0)"><div class="days">0天</div><div class="cost">¥0</div></div>
+                    <div class="leave-option selected" onclick="selectLeave(1)"><div class="days">1天</div><div class="cost">¥1600</div></div>
+                    <div class="leave-option" onclick="selectLeave(2)"><div class="days">2天</div><div class="cost">¥3200</div></div>
+                    <div class="leave-option" onclick="selectLeave(3)"><div class="days">3天</div><div class="cost">¥4800</div></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card result" id="flightCard">
+            <h2>✈️ 机票搜索结果 <span class="mock-badge" id="flightBadge" style="display:none">模拟数据</span></h2>
+            <div class="loading" id="flightLoading" style="display:none">
+                <div class="loading-spinner"></div>
+                <div>正在搜索航班...</div>
+            </div>
+            <div class="flight-list" id="flightList"></div>
+        </div>
+        
+        <div class="card result" id="hotelCard">
+            <h2>🏨 酒店搜索结果 <span class="mock-badge" id="hotelBadge" style="display:none">模拟数据</span></h2>
+            <div class="loading" id="hotelLoading" style="display:none">
+                <div class="loading-spinner"></div>
+                <div>正在搜索酒店...</div>
+            </div>
+            <div class="hotel-list" id="hotelList"></div>
+        </div>
+        
+        <div class="card result" id="planCard">
+            <h2>📅 行程总览</h2>
+            <div class="plan-summary" id="planSummary"></div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedDest = null;
+        let selectedLeaveDays = 1;
+        let flights = [];
+        let hotels = [];
+        let destinations = [];
+        
+        // 初始化
+        window.onload = async () => {
+            await loadDestinations();
+            calculateSalary();
+            
+            // 绑定事件
+            document.getElementById('dailySalary').addEventListener('input', calculateSalary);
+            document.getElementById('workHours').addEventListener('input', calculateSalary);
+        };
+        
+        // 加载目的地列表
+        async function loadDestinations() {
+            try {
+                const res = await fetch('/api/destinations');
+                destinations = await res.json();
+                renderDestinations();
+            } catch (e) {
+                console.error('加载目的地失败:', e);
+            }
+        }
+        
+        // 渲染目的地
+        function renderDestinations() {
+            const grid = document.getElementById('destGrid');
+            grid.innerHTML = destinations.map(d => `
+                <div class="dest-card" onclick="selectDest('${d.code}', this)">
+                    <div class="dest-header">
+                        <span class="dest-name">${d.flag} ${d.name}</span>
+                        <span class="dest-price">¥${d.basePrice}+</span>
+                    </div>
+                    <div class="dest-info">${d.visa} · ${d.time}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 选择目的地
+        function selectDest(code, el) {
+            selectedDest = destinations.find(d => d.code === code);
+            document.querySelectorAll('.dest-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+        
+        // 计算工资
+        function calculateSalary() {
+            const dailySalary = parseFloat(document.getElementById('dailySalary').value) || 1600;
+            const workHours = parseFloat(document.getElementById('workHours').value) || 8;
+            const hourlyRate = dailySalary / workHours;
+            const amHours = 4, pmHours = 4;
+            
+            const amCost = amHours * hourlyRate;
+            const pmCost = pmHours * hourlyRate;
+            const fullDayCost = amCost + pmCost;
+            
+            document.getElementById('hourlyRate').textContent = hourlyRate.toFixed(0);
+            document.getElementById('amCost').textContent = amCost.toFixed(0);
+            document.getElementById('pmCost').textContent = pmCost.toFixed(0);
+            document.getElementById('fullDayCost').textContent = fullDayCost.toFixed(0);
+            
+            // 更新请假选项
+            document.querySelectorAll('.leave-option').forEach((opt, i) => {
+                const days = i;
+                const cost = fullDayCost * days;
+                opt.querySelector('.days').textContent = days + '天';
+                opt.querySelector('.cost').textContent = '¥' + cost.toFixed(0);
+            });
+            
+            document.getElementById('salaryCard').classList.add('show');
+        }
+        
+        // 选择请假天数
+        function selectLeave(days) {
+            selectedLeaveDays = days;
+            document.querySelectorAll('.leave-option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === days);
+            });
+            updatePlan();
+        }
+        
+        // 搜索机票和酒店
+        async function searchAll() {
+            if (!selectedDest) {
+                alert('请先选择一个目的地！');
+                return;
+            }
+            
+            const fromCity = document.getElementById('fromCity').value;
+            const departDate = document.getElementById('departDate').value;
+            const returnDate = document.getElementById('returnDate').value;
+            
+            // 显示加载状态
+            document.getElementById('flightLoading').style.display = 'block';
+            document.getElementById('hotelLoading').style.display = 'block';
+            document.getElementById('flightList').innerHTML = '';
+            document.getElementById('hotelList').innerHTML = '';
+            document.getElementById('flightBadge').style.display = 'none';
+            document.getElementById('hotelBadge').style.display = 'none';
+            
+            try {
+                // 搜索机票
+                const flightRes = await fetch('/api/search-flights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fromCity,
+                        toCity: selectedDest.name,
+                        date: departDate,
+                        returnDate
+                    })
+                });
+                const flightData = await flightRes.json();
+                flights = flightData.flights || [];
+                if (flightData.isMock) {
+                    document.getElementById('flightBadge').style.display = 'inline-block';
+                }
+                renderFlights();
+                
+                // 搜索酒店
+                const hotelRes = await fetch('/api/search-hotels', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        city: selectedDest.name,
+                        checkIn: departDate,
+                        checkOut: returnDate,
+                        guests: 1
+                    })
+                });
+                const hotelData = await hotelRes.json();
+                hotels = hotelData.hotels || [];
+                if (hotelData.isMock) {
+                    document.getElementById('hotelBadge').style.display = 'inline-block';
+                }
+                renderHotels();
+                
+                // 显示结果
+                document.getElementById('flightCard').classList.add('show');
+                document.getElementById('hotelCard').classList.add('show');
+                document.getElementById('planCard').classList.add('show');
+                
+                updatePlan();
+                
+            } catch (e) {
+                console.error('搜索失败:', e);
+                alert('搜索失败，请稍后重试');
+            } finally {
+                document.getElementById('flightLoading').style.display = 'none';
+                document.getElementById('hotelLoading').style.display = 'none';
+            }
+        }
+        
+        // 渲染航班
+        function renderFlights() {
+            const list = document.getElementById('flightList');
+            if (flights.length === 0) {
+                list.innerHTML = '<div class="error-msg">未找到航班</div>';
+                return;
+            }
+            
+            list.innerHTML = flights.slice(0, 5).map(f => `
+                <div class="flight-card">
+                    <div class="flight-info">
+                        <div class="flight-airline">${f.airline} ${f.cabin}</div>
+                        <div class="flight-time">${f.departTime} - ${f.arriveTime}</div>
+                        <div class="flight-duration">${f.duration} · ${f.stops === 0 ? '直飞' : f.stops + '程中转'}</div>
+                    </div>
+                    <div class="flight-price">
+                        <div class="amount">¥${f.price}</div>
+                        <div class="currency">${f.currency}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 渲染酒店
+        function renderHotels() {
+            const list = document.getElementById('hotelList');
+            if (hotels.length === 0) {
+                list.innerHTML = '<div class="error-msg">未找到酒店</div>';
+                return;
+            }
+            
+            list.innerHTML = hotels.slice(0, 4).map(h => `
+                <div class="hotel-card">
+                    <img class="hotel-image" src="${h.image}" alt="${h.name}">
+                    <div class="hotel-info">
+                        <div class="hotel-name">${h.name}</div>
+                        <div class="hotel-rating">${'⭐'.repeat(Math.floor(h.rating))} ${h.rating}</div>
+                        <div class="hotel-amenities">
+                            ${h.amenities.map(a => `<span class="amenity-tag">${a}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="hotel-price">
+                        <div class="amount">¥${h.price}</div>
+                        <div class="currency">${h.currency}/晚</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 更新行程总览
+        function updatePlan() {
+            const departDate = document.getElementById('departDate').value;
+            const returnDate = document.getElementById('returnDate').value;
+            const dailySalary = parseFloat(document.getElementById('dailySalary').value) || 1600;
+            
+            const depart = new Date(departDate);
+            const ret = new Date(returnDate);
+            const tripDays = Math.ceil((ret - depart) / (1000 * 60 * 60 * 24)) + 1;
+            const leaveCost = dailySalary * selectedLeaveDays;
+            
+            const flightPrice = flights[0]?.price || selectedDest?.basePrice || 1000;
+            const hotelPrice = hotels[0]?.price || 400;
+            const hotelNights = tripDays - 1;
+            
+            const totalCost = flightPrice * 2 + hotelPrice * hotelNights + leaveCost;
+            
+            document.getElementById('planSummary').innerHTML = `
+                <h3>💰 费用明细</h3>
+                <div class="plan-row"><span>往返机票</span><span>¥${(flightPrice * 2).toFixed(0)}</span></div>
+                <div class="plan-row"><span>${hotelNights}晚酒店</span><span>¥${(hotelPrice * hotelNights).toFixed(0)}</span></div>
+                <div class="plan-row"><span>请假扣薪 (${selectedLeaveDays}天)</span><span>¥${leaveCost.toFixed(0)}</span></div>
+                <div class="plan-row" style="font-size: 18px; font-weight: bold;"><span>总计</span><span>¥${totalCost.toFixed(0)}</span></div>
+                <div class="plan-row" style="border: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <span>🗓️ 假期天数: ${tripDays + selectedLeaveDays}天 (旅行${tripDays}天 + 请假${selectedLeaveDays}天)</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
