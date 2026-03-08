@@ -8,6 +8,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// 首页路由
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Amadeus API 配置 (新版本SDK格式)
 const amadeus = new Amadeus({
   clientId: 'wGg4kJInX69GG9hDzqPJqvVxckj1UJuN',
