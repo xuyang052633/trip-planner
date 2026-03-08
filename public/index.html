@@ -345,7 +345,10 @@
             list.innerHTML = flights.slice(0, 5).map(f => `
                 <div class="flight-card">
                     <div class="flight-header">
-                        <div class="flight-airline">${airlineNames[f.airline] || f.airline} ${f.airline}</div>
+                        <div class="flight-airline">
+                            <span style="background:#667eea;color:white;padding:2px 8px;border-radius:4px;font-size:12px;margin-right:8px">${f.flightNumber || f.airline}</span>
+                            ${f.airlineName || airlineNames[f.airline] || f.airline}
+                        </div>
                         <div class="flight-price">
                             <div class="amount">¥${f.price}</div>
                             <div class="currency">${f.currency || 'CNY'}</div>
@@ -354,12 +357,12 @@
                     <div class="flight-route">
                         <div class="flight-time">
                             <div class="time">${f.departTime}</div>
-                            <div class="airport">${fromCode}</div>
+                            <div class="airport">${f.departAirport || fromCode}</div>
                         </div>
                         <div class="flight-arrow">✈️</div>
                         <div class="flight-time">
                             <div class="time">${f.arriveTime}</div>
-                            <div class="airport">${selectedDest.airport}</div>
+                            <div class="airport">${f.arriveAirport || selectedDest.airport}</div>
                         </div>
                     </div>
                     <div class="flight-details">
