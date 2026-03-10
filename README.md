@@ -1,77 +1,47 @@
-# 旅游规划小助手
+# ✈️ 请假旅游规划助手
 
-一个智能旅游成本优化 Web 应用，帮你计算请假损失 + 机票价格，找出最优旅行方案。
+智能请假成本计算 + 实时机票酒店搜索 + 行程规划
 
-## 功能特性
+## 功能特点
 
-### ✅ 目的地推荐
-- 输入预算和请假天数，智能推荐热门目的地
-- 支持按偏好筛选（海岛/城市/风景/历史）
-- 显示预估总成本（机票+住宿+餐饮）
-
-### ✅ 热门目的地榜单
-- 实时热门目的地排行
-- 显示热度指数和参考均价
-
-### ✅ 日期优化
-- 选择日期范围，找出最便宜的出行日
-- 综合考虑请假成本，推荐最优日期
-- 周末/平日价格对比
-
-### ✅ 请假损失计算
-- 日薪 × 请假天数（精确到小时）
-- 可自定义工作时间段
-- 支持工作日/周末不同计算
-
-### ✅ 机票价格对比
-- 自动爬取携程、去哪儿、飞猪等平台
-- 支持多出发地/目的地配置
-- 实时价格查询
-
-### ✅ 智能优化推荐
-- 计算总成本（请假损失 + 机票）
-- 自动排序推荐最优方案
-- 详细对比表格
-
-## 技术栈
-
-- **前端**: React 18 + Ant Design 5 + Vite
-- **后端**: Node.js + Express
-- **爬虫**: Puppeteer
-- **样式**: Tailwind CSS
-- **状态管理**: Zustand
+- 💰 智能计算请假成本（按小时/上午/下午/全天）
+- 🛫 实时搜索机票（Amadeus API）
+- 🏨 酒店搜索
+- 📅 行程规划与费用总览
+- 🗓️ 支持自定义请假天数
 
 ## 快速开始
 
+### 本地运行
+
 ```bash
-# 安装依赖
 npm install
-
-# 启动后端
-npm run dev:server
-
-# 启动前端（新终端）
-npm run dev:client
+npm start
 ```
 
-访问 http://localhost:5173
+访问 http://localhost:3000
 
-## 项目结构
+### 部署到 GitHub Pages
 
-```
-travel-planner/
-├── server/              # 后端服务
-│   ├── crawler/        # 爬虫模块
-│   ├── api/           # API 路由
-│   └── utils/         # 工具函数
-├── client/            # 前端应用
-│   ├── src/
-│   │   ├── components/  # 组件
-│   │   ├── pages/       # 页面
-│   │   ├── store/       # 状态管理
-│   │   └── utils/       # 工具
-│   └── public/
-└── shared/            # 共享类型和常量
+1. 创建 GitHub 仓库
+2. 推送代码
+3. 在仓库设置中启用 GitHub Pages
+
+## 技术栈
+
+- Node.js + Express
+- Amadeus API（机票搜索）
+- 纯 HTML/CSS/JavaScript 前端
+
+## API 配置
+
+Amadeus API 密钥配置在 `server.js` 中：
+
+```javascript
+const amadeus = new Amadeus({
+  clientId: 'YOUR_API_KEY',
+  clientSecret: 'YOUR_API_SECRET'
+});
 ```
 
 ## 许可证

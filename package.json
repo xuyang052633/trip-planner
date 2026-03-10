@@ -1,15 +1,14 @@
 {
-  "name": "travel-planner",
+  "name": "trip-planner-app",
   "version": "1.0.0",
-  "description": "智能旅游规划小助手 - 计算请假损失 + 机票价格优化",
+  "description": "请假旅游规划助手",
+  "main": "server.js",
   "scripts": {
-    "dev:server": "cd server && npm run dev",
-    "dev:client": "cd client && npm run dev",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "build": "cd client && npm run build",
-    "start": "cd server && npm start"
+    "start": "node server.js"
   },
-  "keywords": ["travel", "flight", "planner", "optimization"],
-  "author": "小羊",
-  "license": "MIT"
+  "dependencies": {
+    "express": "^4.18.2",
+    "amadeus": "^8.0.0",
+    "cors": "^2.8.5"
+  }
 }
