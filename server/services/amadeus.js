@@ -4,8 +4,8 @@
 const axios = require('axios');
 
 const AMADEUS_CONFIG = {
-  apiKey: 'wGg4kJInX69GG9hDzqPJqvVxckj1UJuN',
-  apiSecret: 'rwRLydIN4a7frbuU',
+  apiKey: process.env.AMADEUS_API_KEY || 'wGg4kJInX69GG9hDzqPJqvVxckj1UJuN',
+  apiSecret: process.env.AMADEUS_API_SECRET || 'rwRLydIN4a7frbuU',
   baseUrl: 'https://test.api.amadeus.com'
 };
 
